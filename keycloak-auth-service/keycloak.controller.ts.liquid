@@ -1,0 +1,165 @@
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Logger,
+  Param,
+  Post,
+  Put,
+  Request,
+  UsePipes,
+  ValidationPipe,
+} from "@nestjs/common";
+import {
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+  ApiUnauthorizedResponse,
+  ApiBadRequestResponse,
+  ApiBody,
+  ApiParam,
+} from "@nestjs/swagger"; // Import Swagger decorators
+import { KeycloakService } from "./keycloak.service";
+import { UserUpdateDto, UserCreateDto } from "./Keyclock.dto";
+
+@ApiTags("Authentication") // Tag for Swagger documentation
+@Controller("/api/v1/auth")
+export class KeycloakController {
+  private readonly logger = new Logger(KeycloakController.name);
+  constructor(private keycloakService: KeycloakService) {}
+
+  @Post("/login")
+  @UsePipes(new ValidationPipe())
+  @ApiUnauthorizedResponse({ description: "Unauthorized" })
+  @ApiBadRequestResponse({ description: "Bad Request" })
+  @ApiOperation({
+    summary: "Authenticate user with backend identity provider.",
+    description:
+      "Accept user credentials, authenticate with backend identity provider and return an access token.",
+  })
+  @ApiBody({
+    description: "User login credentials",
+    schema: {
+      type: "object",
+      properties: {
+        username: { type: "string" },
+        password: { type: "string" },
+      },
+    },
+  })
+  @ApiResponse({ status: 200, description: "Login successful" })
+  @ApiResponse({ status: 401, description: "Unauthorized" })
+  async login(
+    @Request() req: any,
+    @Body() body: { username: string; password: string }
+  ) {
+    return this.keycloakService.getAccessToken(body.username, body.password);
+  }
+
+  @Post("/refresh")
+  @UsePipes(new ValidationPipe())
+  @ApiUnauthorizedResponse({ description: "Unauthorized" })
+  @ApiBadRequestResponse({ description: "Bad Request" })
+  @ApiOperation({
+    summary: "Refresh access_token with backend identity provider.",
+    description:
+      "Accept refresh toke, and regenerates access token with backend identity provider and return an access token.",
+  })
+  @ApiBody({
+    description: "Refresh token",
+    schema: {
+      type: "object",
+      properties: {
+        refreshToken: { type: "string" },
+      },
+    },
+  })
+  @ApiResponse({ status: 200, description: "Refresh token successful" })
+  @ApiResponse({ status: 401, description: "Unauthorized" })
+  async refresh(@Request() req: any, @Body() body: { refreshToken: string }) {
+    return this.keycloakService.refreshToken(body.refreshToken);
+  }
+
+  @Post("/validate")
+  @UsePipes(new ValidationPipe())
+  @ApiUnauthorizedResponse({ description: "Unauthorized" })
+  @ApiBadRequestResponse({ description: "Bad Request" })
+  @ApiOperation({
+    summary: "Validate access_token with backend identity provider.",
+    description:
+      "Accept access token, and validates access token with backend identity provider.",
+  })
+  @ApiBody({
+    description: "Access token",
+    schema: {
+      type: "object",
+      properties: {
+        accessToken: { type: "string" },
+      },
+    },
+  })
+  @ApiResponse({ status: 200, description: "Access token valid" })
+  @ApiResponse({ status: 401, description: "Access token invalid" })
+  async validate(@Request() req: any, @Body() body: { accessToken: string }) {
+    return this.keycloakService.validateAccessToken(body.accessToken);
+  }
+
+  @Get("/key")
+  @UsePipes(new ValidationPipe())
+  @ApiUnauthorizedResponse({ description: "Unauthorized" })
+  @ApiBadRequestResponse({ description: "Bad Request" })
+  @ApiOperation({
+    summary: "Get public key from backend identity provider.",
+    description: "Get public key from backend identity provider.",
+  })
+  @ApiResponse({ status: 200, description: "Public key" })
+  @ApiResponse({ status: 401, description: "Unauthorized" })
+  async getKey(@Request() req: any) {
+    return this.keycloakService.fetchPublicKey();
+  }
+
+  /**
+   *  @description This method is used to create a new user in the database
+   *   @param data userCreateDto object that contains all necessary information for creating an account
+   */
+  @Post("/create")
+  @ApiOperation({
+    summary: "Create  a new User in the System",
+    description: "Returns created User Data",
+  })
+  @ApiBody({ description: "Create user", type: UserCreateDto })
+  createUser(@Body() UserCreateDto: UserCreateDto) {
+    return this.keycloakService.createUser(UserCreateDto);
+  }
+
+  @ApiOperation({
+    summary: 'Delete user record from the system',
+    description: 'Delete user record from the system.'
+  })
+  @ApiResponse({
+    status: 200,
+    description: "User deleted successfully",
+  })
+  @ApiUnauthorizedResponse({ description: "Unauthorized" })
+  @ApiResponse({ status: 200, description: "User deleted successful" })
+  @ApiResponse({ status: 401, description: "Unauthorized" })
+  @Delete('/delete/:userEmail')
+  async delete(@Param('userEmail') userEmail: string) {
+    return await this.keycloakService.deleteUser(userEmail);
+  }
+
+  
+  @Put('/:userEmail')
+  @ApiOperation({
+    summary: 'Update user details',
+    description: 'Update user details'
+  })
+  @ApiParam({ name: "userEmail", description: "User Email", type: "string" })
+  @ApiBody({ description: 'Update User details', type: UserUpdateDto })
+  async updateUserDetails(@Body() userUpdateDto: UserUpdateDto, @Param('userEmail') userEmail: string) {
+    const user = await this.keycloakService.findUsers({ username: userEmail });
+    if(!user.isData) return new Error('User not found');
+    return await this.keycloakService.updateUser(user.data.id, userUpdateDto);
+  }
+}

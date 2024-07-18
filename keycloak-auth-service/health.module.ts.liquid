@@ -1,0 +1,12 @@
+import { Module } from '@nestjs/common';
+import { HealthService } from './health.service';
+import { HealthServiceController } from './health.controller';
+import { HttpModule } from '@nestjs/axios';
+import { KeycloakModule } from '../keycloak/keycloak.module';
+
+@Module({
+  imports: [HttpModule, KeycloakModule],
+  controllers: [HealthServiceController],
+  providers: [HealthService],
+})
+export class HealthModule {}

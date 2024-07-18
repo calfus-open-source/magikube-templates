@@ -1,0 +1,13 @@
+import { Injectable } from '@nestjs/common';
+import { KeycloakService } from '../keycloak/keycloak.service';
+
+@Injectable()
+export class HealthService {
+  constructor(
+    private keycloakService: KeycloakService,
+  ) {}
+
+  keycloakStatus(): Promise<number> {
+    return this.keycloakService.checkHealth();
+  }
+}

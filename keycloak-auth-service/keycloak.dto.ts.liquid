@@ -1,0 +1,88 @@
+import { ApiProperty } from "@nestjs/swagger";
+import { Type } from "class-transformer";
+import {
+  IsArray,
+  IsBoolean,
+  IsEmail,
+  IsOptional,
+  IsString,
+  ValidateNested,
+} from "class-validator";
+
+class Credentials {
+  @IsString()
+  @IsOptional()
+  @ApiProperty({ description: "Type of credentials", example: "password" })
+  type: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({ description: "Password String", example: "secretp@ssword" })
+  value: string;
+
+  @IsBoolean()
+  @IsOptional()
+  @ApiProperty({ description: "Temporary Password", example: true })
+  temporary: boolean;
+}
+
+export class UserCreateDto {
+  @IsString()
+  @IsOptional()
+  @ApiProperty({ description: "The username of the user", example: "john_doe" })
+  username: string;
+
+  @IsBoolean()
+  @IsOptional()
+  @ApiProperty({ description: "User enabled or not", example: true })
+  enabled: boolean;
+
+  @IsBoolean()
+  @IsOptional()
+  @ApiProperty({ description: "Verified Email of user", example: false })
+  emailVerified: boolean;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({ description: "User first name", example: "John" })
+  firstName: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({ description: "User last name", example: "Doe" })
+  lastName: string;
+
+  @IsEmail()
+  @IsOptional()
+  @ApiProperty({ description: "User Email", example: "john.doe@example.com" })
+  email: string;
+
+  @IsArray()
+  @IsOptional()
+  @ApiProperty({
+    type: [Credentials],
+    description: "User Credentials",
+    example: [{ type: "password", value: "secretp@ssword", temporary: true }],
+  })
+  @ValidateNested({ each: true })
+  @Type(() => Credentials)
+  credentials: Credentials[];
+}
+
+
+export class UserUpdateDto {
+  @IsString()
+  @IsOptional()
+  @ApiProperty({ description: "User Email", example: "john.doe@example.com" })
+  email: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({ description: "User first name", example: "John" })
+  firstName: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({ description: "User last name", example: "Doe" })
+  lastName: string;
+}
