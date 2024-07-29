@@ -1,0 +1,36 @@
+import { Request, Response, NextFunction } from 'express';
+import { JwtPayload } from 'jsonwebtoken';
+import { authGuardService } from './auth-guard.service';
+
+declare module 'express-serve-static-core' {
+  interface Request {
+    user?: JwtPayload | string;
+  }
+}
+
+export const AuthGuard = async (req: Request, res: Response, next: NextFunction) => {
+const isProtected = req.route.path !== '/'; 
+
+  if (!isProtected) {
+    return next();
+  }
+
+const authorizationHeader = req.headers['authorization'];
+  if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
+    return res.status(401).send('Invalid token');
+  }
+
+const token = authorizationHeader.slice(7);
+  try {
+      const decodedToken = await authGuardService.validateAndParseToken(token);
+      req.user = decodedToken;
+      next();
+    } catch (error: any) {
+      console.error('Error validating token:', error.message);
+      if (error.message === 'Token expired') {
+        return res.status(401).send('Your session has expired');
+      } else {
+        return res.status(401).send('Token validation failed');
+      }
+    }
+  };

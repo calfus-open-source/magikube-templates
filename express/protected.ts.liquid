@@ -1,0 +1,15 @@
+import { Router, Request, Response } from 'express';
+import { AuthGuard } from '../middlewares/auth-guard';
+
+const router = Router();
+
+router.get('/', AuthGuard, (req: Request, res: Response) => {
+  res.send('Welcome to express server!');
+});
+
+router.get('/protected', AuthGuard, (req: Request, res: Response) => {
+  res.send('Welcome to protected express server!');
+});
+
+export default router;
+
