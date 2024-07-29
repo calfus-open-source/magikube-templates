@@ -1,9 +1,27 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  const config = new DocumentBuilder()
+    .setTitle('Authtentication & Authorization API')
+    .setDescription(
+      `
+      This service is responsible for authentication and authorization of users. 
+      It uses Keycloak as the identity provider. 
+      It also provides a REST API for user management.
+      `,
+    )
+    .setVersion('1.0')
+    .addServer(process.env.SWAGGER_BASEURL || "http://localhost:3000", process.env.SWAGGER_SERVER_NAME || "Local Development" )
+    .build();
+
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('/api/v1/auth/api-docs', app, document);
+
   app.useGlobalPipes(new ValidationPipe());
   await app.listen(3000);
 }
