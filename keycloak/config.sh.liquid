@@ -93,53 +93,42 @@ CLIENT_PAYLOAD=$(node -pe "
     fullScopeAllowed: true,
     });
 ")
- 
-##Third curl command to create client
+
+# Third curl command to create client
 curl -k --silent --show-error --request POST \
 --url "${KEYCLOAK_BASEURL}/admin/realms/${REALM_NAME}/clients" \
 --header "Content-Type: application/json" \
 --header "Authorization: Bearer ${token}" \
 --data-raw "$CLIENT_PAYLOAD"
- 
+
 # Fourth curl command to create user
-emails=('frances@example.com' 'taylor@example.com' 'ben@example.com' 'zachary@example.com' 'lily@example.com' 'rosea@example.com' 'daisyb@example.com' 'johng@example.com')
-first=('Frances' 'Taylor' 'Ben' 'Zachary' 'Lily' 'Rose' 'Daisy' 'John')
-last=('Liam' 'Schindler' 'Stokes' 'Swenson' 'Gomez' 'Anderson' 'Brandon' 'Gates')
- 
-for i in {0..7}
-do
-  USER_PAYLOAD=$(node -pe "
-    JSON.stringify({
-      username: '${emails[i]}',
-      email: '${emails[i]}',
-      enabled: true,
-      emailVerified: true,
-      firstName: '${first[i]}',
-      lastName: '${last[i]}',
-      credentials: [{
-        type: 'password',
-        value: 'welcome',
-      }],
-    });
-  ")
- 
-  curl -k --silent --show-error --request POST \
-  --url "${KEYCLOAK_BASEURL}/admin/realms/${REALM_NAME}/users" \
-  --header "Content-Type: application/json" \
-  --header "Authorization: Bearer ${token}" \
-  --data-raw "$USER_PAYLOAD"
-done
- 
-#setup admin client
-ADMIN_CLI_CLIENT_ID=`curl -k --silent --show-error --request GET \
+USER_PAYLOAD=$(node -pe "
+  JSON.stringify({
+    username: 'magikube',
+    email: 'magikube_user@example.com',
+    enabled: true,
+    emailVerified: true,
+    firstName: 'Magikube',
+    lastName: 'User',
+    credentials: [{
+      type: 'password',
+      value: 'welcome',
+    }],
+  });
+")
+
+curl -k --silent --show-error --request POST \
+--url "${KEYCLOAK_BASEURL}/admin/realms/${REALM_NAME}/users" \
+--header "Content-Type: application/json" \
+--header "Authorization: Bearer ${token}" \
+--data-raw "$USER_PAYLOAD"
+
+# Setup admin client
+ADMIN_CLI_CLIENT_ID=$(curl -k --silent --show-error --request GET \
 --url "${KEYCLOAK_BASEURL}/admin/realms/${REALM_NAME}/clients?clientId=admin-cli" \
 --header "Content-Type: application/json" \
---header "Authorization: Bearer ${token}" | jq '.[0].id'`
- 
-#remove quotes
-ADMIN_CLI_CLIENT_ID=$(echo $ADMIN_CLI_CLIENT_ID | tr -d '"')
-echo $ADMIN_CLI_CLIENT_ID
- 
+--header "Authorization: Bearer ${token}" | jq '.[0].id' | tr -d '"')
+
 CLIENT_PAYLOAD=$(node -pe "
   JSON.stringify({
     secret: '${CLIENT_SECRET}',
@@ -155,33 +144,29 @@ CLIENT_PAYLOAD=$(node -pe "
     }
     });
 ")
- 
+
 curl -k --silent --show-error --request PUT \
 --url "${KEYCLOAK_BASEURL}/admin/realms/${REALM_NAME}/clients/${ADMIN_CLI_CLIENT_ID}" \
 --header "Content-Type: application/json" \
 --header "Authorization: Bearer ${token}" \
 --data-raw "$CLIENT_PAYLOAD"
- 
- 
- 
-SERVICE_ACCOUNT_ID=`curl -k --silent --show-error --request GET \
+
+SERVICE_ACCOUNT_ID=$(curl -k --silent --show-error --request GET \
 --url "${KEYCLOAK_BASEURL}/admin/realms/${REALM_NAME}/users?username=service-account-admin-cli" \
 --header "Content-Type: application/json" \
---header "Authorization: Bearer ${token}" | jq '.[0].id' | tr -d '"'`
- 
- 
-  # Retrieve the Role ID
-REALM_MANAGEMENT=`curl -k --silent --show-error --request GET \
+--header "Authorization: Bearer ${token}" | jq '.[0].id' | tr -d '"')
+
+# Retrieve the Role ID
+REALM_MANAGEMENT=$(curl -k --silent --show-error --request GET \
 --url "${KEYCLOAK_BASEURL}/admin/realms/${REALM_NAME}/clients?clientId=realm-management" \
 --header "Content-Type: application/json" \
---header "Authorization: Bearer ${token}" | jq '.[0].id' | tr -d '"'`
- 
- 
-ROLE_ID=`curl -k --silent --show-error --request GET \
+--header "Authorization: Bearer ${token}" | jq '.[0].id' | tr -d '"')
+
+ROLE_ID=$(curl -k --silent --show-error --request GET \
 --url "${KEYCLOAK_BASEURL}/admin/realms/${REALM_NAME}/clients/${REALM_MANAGEMENT}/roles?search=manage-users" \
 --header "Content-Type: application/json" \
---header "Authorization: Bearer ${token}" | jq '.[0].id' | tr -d '"'`
- 
+--header "Authorization: Bearer ${token}" | jq '.[0].id' | tr -d '"')
+
 # Assign the role to the service account
 curl -k --silent --show-error --request POST \
 --url "${KEYCLOAK_BASEURL}/admin/realms/${REALM_NAME}/users/${SERVICE_ACCOUNT_ID}/role-mappings/clients/${REALM_MANAGEMENT}" \
