@@ -1,0 +1,20 @@
+import { Controller, Get } from '@nestjs/common';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'; // Import Swagger decorators
+import { HealthService } from './health.service';
+
+@ApiTags('Health') // Tag for Swagger documentation
+@Controller('/api/v1/auth/health')
+export class HealthServiceController {
+  constructor(private healthService: HealthService) {}
+
+  @Get()
+  @ApiOperation({
+    summary: 'Check service status',
+    description: 'Endpoint to check the status of the service.',
+  })
+  @ApiResponse({ status: 200, description: 'Service is healthy' })
+  @ApiResponse({ status: 500, description: 'Service is not healthy' })
+  keycloakStatus() {
+    return this.healthService.keycloakStatus();
+  }
+}

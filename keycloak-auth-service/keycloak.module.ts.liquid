@@ -1,0 +1,13 @@
+import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { KeycloakService } from './keycloak.service';
+import { HttpModule } from '@nestjs/axios';
+import { KeycloakController } from './keycloak.controller';
+
+@Module({
+  imports: [ConfigModule.forRoot(), HttpModule],
+  controllers: [KeycloakController],
+  providers: [KeycloakService],
+  exports: [KeycloakService],
+})
+export class KeycloakModule {}

@@ -1,0 +1,22 @@
+import { AuthProvider } from 'react-oidc-context';
+import React from 'react';
+
+const onSigninCallback = (): void => {
+  window.history.replaceState({}, document.title, window.location.pathname);
+};
+
+const oidcConfig = {
+  authority: process.env.REACT_APP_KEYCLOAK_BASE_URL,
+  client_id: process.env.REACT_APP_KEYCLOAK_CLIENT_ID,
+  redirect_uri: process.env.REACT_APP_UI_BASE_URL,
+  response_type: 'code',
+  onSigninCallback
+};
+
+export default function AuthenticationProvider({ children }: { children: React.ReactNode }) {
+  return (
+    <AuthProvider {...oidcConfig}>
+      {children}
+    </AuthProvider>
+  );
+}

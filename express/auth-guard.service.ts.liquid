@@ -1,0 +1,49 @@
+import axios from 'axios';
+import jwt from 'jsonwebtoken';
+import { AppConfig } from '../config/AppConfig';
+
+class AuthGuardService {
+  private publicKey: string | undefined;
+
+  async fetchKeycloakPublicKey(): Promise<void> {
+    try {
+      const publicKeyEndpoint = `${AppConfig.AUTH_SERVICE_URL}/api/v1/auth/key`;    
+      const response = await axios.get(publicKeyEndpoint);
+      this.publicKey = response.data;
+    } catch (error: any) {
+      console.error('Error fetching authentication public key:', error.message);
+      if (error.response) {
+        console.error('Response data:', error.response.data);
+        console.error('Response status:', error.response.status);
+        console.error('Response headers:', error.response.headers);
+      } else if (error.request) {
+        console.error('No response received:', error.request);
+      } else {
+        console.error('Error setting up request:', error.message);
+      }
+      throw new Error('Unable to fetch authentication public key');
+    }
+  }
+
+  async validateAndParseToken(token: string): Promise<any> {
+    if (!this.publicKey) {
+      await this.fetchKeycloakPublicKey();
+    }
+    if (!this.publicKey) {
+      throw new Error('Public key is not defined');
+    }
+    
+    try {
+      const decodedToken = jwt.verify(token, this.publicKey, { algorithms: ['RS256'] });    
+      return decodedToken;
+    } catch (error: any) {
+      console.error('Error validating token:', error.message);
+      if (error.name === 'TokenExpiredError') {
+        throw new Error('Token expired');
+      }
+      throw new Error('Token validation failed');
+    }
+  }
+}
+
+export const authGuardService = new AuthGuardService();

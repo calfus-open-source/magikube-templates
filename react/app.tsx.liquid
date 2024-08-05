@@ -1,14 +1,30 @@
-import  './app.css'
- 
+import './app.css';
+import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
+import AuthGuard from './components/AuthGuard';
+import AuthenticationProvider from './components/AuthenticationProvider';
+import Callback from './components/Callback';
+
 function App() {
   return (
-    <div className="App" >
-    <p>
-      Welcome to
-    </p>
-    <h2> React application</h2>
-    </div>
+    <AuthenticationProvider>
+      <Router>
+        <Routes>
+          <Route path="/callback" element={<Callback />} />
+          <Route 
+            path="/" 
+            element={
+              <AuthGuard>
+                <div className="App">
+                  <p>Welcome to</p>
+                  <h2>React application</h2>
+                </div>
+              </AuthGuard>
+            }
+          />
+        </Routes>
+      </Router>
+    </AuthenticationProvider>
   );
 }
- 
+
 export default App;

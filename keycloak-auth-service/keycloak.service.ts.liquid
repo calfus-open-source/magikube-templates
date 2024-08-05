@@ -1,0 +1,226 @@
+import { Injectable, Logger } from "@nestjs/common";
+import axios from "axios";
+import { ConfigService } from "@nestjs/config";
+import * as jwksClient from "jwks-rsa";
+import { promisify } from "util";
+interface findUserOptions {
+  email?: string,
+  username?: string,
+  search?: string
+}
+import { map, catchError } from "rxjs";
+import { UserCreateDto, UserUpdateDto } from "./keycloak.dto";
+import { error } from "console";
+
+@Injectable()
+export class KeycloakService {
+  constructor(private configService: ConfigService) {}
+
+  private readonly keycloakBaseUrl: string =
+    this.configService.get("KEYCLOAK_BASE_URL");
+  private readonly clientId: string =
+    this.configService.get("KEYCLOAK_CLIENT_ID");
+  private readonly clientSecret: string = this.configService.get(
+    "KEYCLOAK_CLIENT_SECRET"
+  );
+  private readonly customerApiUrl: string = this.configService.get("CUSTOMER_API_SERVICE_BASE_URL");
+  private readonly realm: string = this.configService.get("KEYCLOAK_REALM");
+  private readonly logger = new Logger(KeycloakService.name);
+
+  async checkHealth(): Promise<number> {
+    const healthEndpoint = `${this.keycloakBaseUrl}/realms/${this.realm}`;
+    this.logger.log(`Checking health of Keycloak at ${healthEndpoint}`);
+    try {
+      const response = await axios.get(healthEndpoint);
+      return response.status;
+    } catch (error) {
+      this.logger.error(`Error checking health of Keycloak: ${error.message}`);
+      return error.response.status;
+    }
+  }
+
+  async getAccessToken(username: string, password: string): Promise<string> {
+    const tokenEndpoint = `${this.keycloakBaseUrl}/realms/${this.realm}/protocol/openid-connect/token`;
+
+    this.logger.log(`Getting access token for user ${username}`);
+    const requestBody = new URLSearchParams();
+    requestBody.append("grant_type", "password");
+    requestBody.append("client_id", this.clientId);
+    requestBody.append("client_secret", this.clientSecret);
+    requestBody.append("username", username);
+    requestBody.append("password", password);
+
+    const response = await axios.post(tokenEndpoint, requestBody, {
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+    });
+    this.updateUserInviteFlag(username, true, response.data.access_token);
+    return response.data;
+  }
+
+  async refreshToken(refreshToken: string): Promise<string> {
+    const tokenEndpoint = `${this.keycloakBaseUrl}/realms/${this.realm}/protocol/openid-connect/token`;
+
+    this.logger.log("Refreshing access token");
+    const requestBody = new URLSearchParams();
+    requestBody.append("grant_type", "refresh_token");
+    requestBody.append("client_id", this.clientId);
+    requestBody.append("client_secret", this.clientSecret);
+    requestBody.append("refresh_token", refreshToken);
+
+    const response = await axios.post(tokenEndpoint, requestBody, {
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+    });
+
+    return response.data;
+  }
+
+  async validateAccessToken(accessToken: string): Promise<boolean> {
+    const introspectEndpoint = `${this.keycloakBaseUrl}/realms/${this.realm}/protocol/openid-connect/token/introspect`;
+
+    this.logger.log("Validating access token");
+    const requestBody = new URLSearchParams();
+    requestBody.append("token", accessToken);
+    requestBody.append("client_id", this.clientId);
+    requestBody.append("client_secret", this.clientSecret);
+
+    const response = await axios.post(introspectEndpoint, requestBody, {
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+    });
+
+    return response.data;
+  }
+
+  async fetchPublicKey(): Promise<string> {
+    const publicKeyEndpoint = `${this.keycloakBaseUrl}/realms/${this.realm}/protocol/openid-connect/certs`;
+    const jwksClientInstance = jwksClient({
+      jwksUri: publicKeyEndpoint,
+    });
+    const getSigningKeyAsync = promisify(
+      jwksClientInstance.getSigningKey.bind(jwksClientInstance)
+    );
+    const response = await axios.get(publicKeyEndpoint);
+    for (const key of response.data.keys) {
+      if (key.use === "sig") {
+        const signingKey = await getSigningKeyAsync(key.kid);
+        return signingKey.publicKey || signingKey.rsaPublicKey;
+      }
+    }
+
+    return Promise.reject("Unable to fetch public key");
+  }
+
+  async serviceaccountToken(): Promise<string> {
+    const tokenEndpoint = `${this.keycloakBaseUrl}/realms/${this.realm}/protocol/openid-connect/token`;
+    const requestBody = new URLSearchParams();
+    requestBody.append("grant_type", "client_credentials");
+    requestBody.append("client_id", this.clientId);
+    requestBody.append("client_secret", this.clientSecret);
+
+    try {
+      const response = await axios.post(tokenEndpoint, requestBody, {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      });
+
+      return response.data.access_token;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async createUser(UserCreateDto: UserCreateDto) {
+    const serviceAccessToken = await this.serviceaccountToken();
+    const tokenEndpoint = `${this.keycloakBaseUrl}/admin/realms/${this.realm}/users`;
+    UserCreateDto.username = UserCreateDto.email;
+    try {
+      const data = await axios.post(tokenEndpoint, UserCreateDto, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${serviceAccessToken}`,
+        },
+      });
+      return data.status === 201 ? true : false;
+    } catch (e) {
+      this.logger.log(e);
+    }
+    return false;
+  }
+  
+  async deleteUser(userEmail: string) {
+    const users = await this.findUsers({ username: userEmail });
+    if(!users.isData) return false;
+    const userId: string = users.data.id;
+    const serviceAccessToken = await this.serviceaccountToken();
+    const tokenEndpoint = `${this.keycloakBaseUrl}/admin/realms/${this.realm}/users/${userId}`;
+    try {
+      const data = await axios.delete(tokenEndpoint, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${serviceAccessToken}`,
+        },
+      });
+      return data.status === 204 ? true : false;
+    } catch (e) {
+      this.logger.log(e);
+      return false;
+    }
+  }
+
+  async findUsers(options?: findUserOptions): Promise<{ isData: boolean, data?: any }> {
+    const serviceAccessToken = await this.serviceaccountToken();
+    const tokenEndpoint = `${this.keycloakBaseUrl}/admin/realms/${this.realm}/users`;
+    try {
+      const data = await axios.get(tokenEndpoint, {
+        params: options,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${serviceAccessToken}`,
+        },
+      });
+      return data.status === 200 && data.data.length ? { isData: true, data: data.data[0] } : { isData: false };
+    } catch (e) {
+      this.logger.log(e);
+      return { isData: false };
+    }
+  }
+
+  async updateUser(userId: string, userUpdateDto: UserUpdateDto) {
+    const serviceAccessToken = await this.serviceaccountToken();
+    const tokenEndpoint = `${this.keycloakBaseUrl}/admin/realms/${this.realm}/users/${userId}`;
+    try {
+      const data = await axios.put(tokenEndpoint, userUpdateDto, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${serviceAccessToken}`,
+        },
+      });
+      return data.status === 204 ? true : false; // Assuming 204 means successful update
+    } catch (e) {
+      this.logger.log(e);
+      return false;
+    }
+  }
+
+  async updateUserInviteFlag(useremail: string, is_invite_accepted: boolean, token) {
+    const customerApiEndPoint = `${this.customerApiUrl}/api/v1/users/${useremail}`;
+    try {
+      const data = await axios.patch(customerApiEndPoint, { is_invite_accepted }, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return data.status === 200 ? true : false;
+    } catch (e) {
+      this.logger.log(e);
+      return false;
+    }
+  }
+}
