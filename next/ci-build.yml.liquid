@@ -1,0 +1,65 @@
+name: Deploy to Amazon ECS
+
+on:
+  push:
+    branches: [ "main" ]
+    
+env:
+  AWS_REGION: ${{ vars.AWS_REGION }}                 # set this to your preferred AWS region, e.g. us-west-1
+  ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY }}           # set this to your Amazon ECR repository name    
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    environment: aws
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+
+    - name: Build, tag, and push image to Amazon ECR
+      id: build-image
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        IMAGE_TAG: ${{ github.sha }}
+      run: |
+        # Build a docker container and push it to ECR 
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+        echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+        echo "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> IMAGE_NAME
+
+#     Adding section to deploy new image to mvue dev environment
+
+    - name: Apply changes to gitops repo
+      id: gitops-update
+      env:
+        GITHUB_TOKEN: ${{ env.GITHUB_TOKEN }}
+        GITOPS_REPO: ${{ env.GITOPS_REPO }}
+      run: |
+
+        git clone https://${GITHUB_TOKEN}@github.com/username/${GITOPS_REPO}.git
+        git config --global credential.helper 'cache --timeout=3600'
+        cd ${GITOPS_REPO}
+        FILE_PATH="$ECR_REGISTRY-deployemnt.yml"
+        NEW_IMAGE="\"$(cat IMAGE_NAME)\""
+        echo "##### updating image to $NEW_IMAGE #####"
+        sed -i -E "s|^(.*image: ).*|\1$NEW_IMAGE|" $FILE_PATH
+        git add .
+        git commit -m "Bumping the version for $ECR_REPOSITORY repo"
+        git push origin main
