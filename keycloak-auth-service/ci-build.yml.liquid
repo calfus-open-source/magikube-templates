@@ -1,3 +1,4 @@
+{% raw %}
 name: Deploy to Amazon ECS
 
 on:
@@ -6,7 +7,9 @@ on:
     
 env:
   AWS_REGION: ${{ vars.AWS_REGION }}                 # set this to your preferred AWS region, e.g. us-west-1
-  ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY }}           # set this to your Amazon ECR repository name    
+  ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY }}           # set this to your Amazon ECR repository name
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
 permissions:
   contents: read
@@ -49,11 +52,12 @@ jobs:
     - name: Apply changes to gitops repo
       id: gitops-update
       env:
-        GITHUB_TOKEN: ${{ env.GITHUB_TOKEN }}
+        REPO_TOKEN: ${{ env.REPO_TOKEN }}
         GITOPS_REPO: ${{ env.GITOPS_REPO }}
+        USERNAME: ${{ env.USERNAME }}
       run: |
 
-        git clone https://${GITHUB_TOKEN}@github.com/username/${GITOPS_REPO}.git
+        git clone https://${REPO_TOKEN}@github.com/${USERNAME}/${GITOPS_REPO}.git
         git config --global credential.helper 'cache --timeout=3600'
         cd ${GITOPS_REPO}
         FILE_PATH="$ECR_REGISTRY-deployemnt.yml"
@@ -63,3 +67,4 @@ jobs:
         git add .
         git commit -m "Bumping the version for $ECR_REPOSITORY repo"
         git push origin main
+{% endraw %}
