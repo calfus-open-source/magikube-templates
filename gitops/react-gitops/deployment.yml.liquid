@@ -1,9 +1,10 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: react-service
+  name: react-service-deployment
   labels:
     app: react-service
+    version: "{% raw %}{{ version }}{% endraw %}"
 spec:
   replicas: 1
   selector:
@@ -11,11 +12,14 @@ spec:
       app: react-service
   template:
     metadata:
+      annotations:
+        cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
       labels:
         app: react-service
+        version: "{% raw %}{{ version }}{% endraw %}"
     spec:
       containers:
       - name: react-service
-        image: {{ .Values.accountId }}.dkr.ecr.{{ aws_region}}.amazonaws.com/{{ project_name }}-{{ frontend_app_type }}-app:{{ latest }}
+        image: image: "{% raw %}{{ image }}{% endraw %}"
         ports:
-        - containerPort: 80
+        - containerPort: 3000
