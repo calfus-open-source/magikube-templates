@@ -6,9 +6,9 @@ metadata:
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS": 443}]'
   labels:
     app.kubernetes.io/name: keycloak-service
-    app.kubernetes.io/part-of: {{ {{ project_name  }} }}-{{ environment }}-app
+    app.kubernetes.io/part-of: {{ project_name }}-{{ environment }}-app
   name: keycloak-service-ingress
-  namespace: {{ projname }}-{{ environment }}-app
+  namespace: {{ project_name }}-{{ environment }}-app
 spec:
   ingressClassName: alb
   rules:
@@ -17,7 +17,7 @@ spec:
       paths:
       - backend:
           service:
-            name: keycloak-service-svc
+            name: auth-service-svc
             port:
               number: 8080
         path: /auth
