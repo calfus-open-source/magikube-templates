@@ -1,26 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: reactjs-app
+  name: react-service
   labels:
-    app: reactjs-app
+    app: react-service
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: reactjs-app
+      app: react-service
   template:
     metadata:
       labels:
-        app: reactjs-app
+        app: react-service
     spec:
       containers:
-      - name: reactjs-container
-        image: {{ACCOUNT_ID}}.dkr.ecr.{{REGION}}.amazonaws.com/reactjs-app:{{IMAGE_HASH}}
+      - name: react-service
+        image: {{ .Values.accountId }}.dkr.ecr.{{ .Values.region }}.amazonaws.com/react-service:{{ .Values.imageHash }}
         ports:
-        - containerPort: 3000
-        env:
-        - name: REACT_APP_API_URL
-          value: "https://api.{{DOMAIN_NAME}}"
-        - name: AWS_REGION
-          value: "{{REGION}}"
+        - containerPort: 80

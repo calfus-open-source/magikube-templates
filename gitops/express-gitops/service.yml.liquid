@@ -1,11 +1,13 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: node-express-service
+  name: node-service
+  labels:
+    app: node-service
 spec:
-  selector:
-    app: node-express-app
+  type: ClusterIP
   ports:
-  - protocol: TCP
-    port: 80
-    targetPort: 3000
+    - port: 80
+      targetPort: 80
+  selector:
+    app: node-service

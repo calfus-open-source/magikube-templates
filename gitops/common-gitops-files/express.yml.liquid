@@ -1,28 +1,18 @@
-apiVersion: kustomize.config.k8s.io/v1beta1
-kind: Kustomization
-resources:
-  - deployment.yaml
-  - ingress.yaml
-  - service.yaml
-
-images:
-  - name: {{ACCOUNT_ID}}.dkr.ecr.{{REGION}}.amazonaws.com/node-express-app
-    newTag: {{IMAGE_HASH}}
-
-namespace: default
-
-configMapGenerator:
-  - name: node-express-config
-    literals:
-      - NODE_ENV=production
-      - API_BASE_URL=https://api.{{DOMAIN_NAME}}
-      - AWS_REGION={{REGION}}
-
-secretGenerator:
-  - name: tls-secret
-    files:
-      - tls.crt=path/to/tls.crt
-      - tls.key=path/to/tls.key
-
-generatorOptions:
-  disableNameSuffixHash: true
+node-service.yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: node-service-update
+spec:
+  template:
+    spec:
+      containers:
+      - name: update-image
+        image: your-image-updater-tool
+        command: ["sh", "-c", "update-image.sh {{ .Values.accountId }} {{ .Values.region }} node-service"]
+        env:
+        - name: GIT_COMMIT_HASH
+          valueFrom:
+            fieldRef:
+              fieldPath: status.commitHash
+      restartPolicy: OnFailure

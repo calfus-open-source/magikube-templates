@@ -1,22 +1,22 @@
+react-service/ingress.yaml
+
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: reactjs-ingress
+  name: react-service-ingress
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:{{ .Values.region }}:{{ .Values.accountId }}:certificate/{{ .Values.certArn }}
 spec:
   rules:
-  - host: reactjs.{{DOMAIN_NAME}}
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: reactjs-service
-            port:
-              number: 80
-  tls:
-  - hosts:
-    - reactjs.{{DOMAIN_NAME}}
-    secretName: tls-secret
+    - host: {{ .Values.domainName }}
+      http:
+        paths:
+          - path: /react
+            pathType: Prefix
+            backend:
+              service:
+                name: react-service
+                port:
+                  number: 80

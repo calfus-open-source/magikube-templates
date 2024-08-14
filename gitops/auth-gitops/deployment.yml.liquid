@@ -1,61 +1,21 @@
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: auth-service-deployment
-  namespace: test-nonprod-dev
+  name: auth-service
   labels:
     app: auth-service
-    version: b7484c96aac5c34ed713e1c74e3888fe72a033cf
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: auth-service
-  progressDeadlineSeconds: 150
   template:
     metadata:
-      annotations:
-        cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
-        prometheus.io/scrape: "true"
-        prometheus.io/custom: "true"
       labels:
         app: auth-service
-        version: b7484c96aac5c34ed713e1c74e3888fe72a033cf
     spec:
       containers:
-        - name: auth-service
-          env:
-            - name: KEYCLOAK_BASE_URL
-              value: ""
-            - name: KEYCLOAK_CLIENT_ID
-              value: "admin-cli"
-            - name: KEYCLOAK_CLIENT_SECRET
-              value: ""
-            - name: KEYCLOAK_REALM
-              value: ""
-            - name: SWAGGER_BASEURL
-              value: ""
-            - name: SWAGGER_SERVER_NAME
-              value: ""
-          image: 905418022678.dkr.ecr.us-east-1.amazonaws.com/auth-service:b7484c96aac5c34ed713e1c74e3888fe72a033cf
-          ports:
-            - containerPort: 3000
-          resources:
-            requests:
-              cpu: "100m"
-              memory: "300Mi"
-          livenessProbe:
-            httpGet:
-              path: /api/v1/auth/health
-              port: 3000
-            initialDelaySeconds: 90
-            periodSeconds: 10
-          readinessProbe:
-            httpGet:
-              path: /api/v1/auth/health
-              port: 3000
-            initialDelaySeconds: 10
-            periodSeconds: 5
-...
- 
+      - name: auth-service
+        image: {{ .Values.accountId }}.dkr.ecr.{{ .Values.region }}.amazonaws.com/auth-service:{{ .Values.imageHash }}
+        ports:
+        - containerPort: 80

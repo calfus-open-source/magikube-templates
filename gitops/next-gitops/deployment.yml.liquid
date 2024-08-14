@@ -1,26 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: nextjs-app
+  name: next-service
   labels:
-    app: nextjs-app
+    app: next-service
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: nextjs-app
+      app: next-service
   template:
     metadata:
       labels:
-        app: nextjs-app
+        app: next-service
     spec:
       containers:
-      - name: nextjs-container
-        image: {{ACCOUNT_ID}}.dkr.ecr.{{REGION}}.amazonaws.com/nextjs-app:{{IMAGE_HASH}}
+      - name: next-service
+        image: {{ .Values.accountId }}.dkr.ecr.{{ .Values.region }}.amazonaws.com/next-service:{{ .Values.imageHash }}
         ports:
-        - containerPort: 3000
-        env:
-        - name: NEXT_PUBLIC_API_URL
-          value: "https://api.{{DOMAIN_NAME}}"
-        - name: AWS_REGION
-          value: "{{REGION}}"
+        - containerPort: 80

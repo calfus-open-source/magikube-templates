@@ -1,22 +1,20 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: auth-ingress
+  name: auth-service-ingress
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:{{ .Values.region }}:{{ .Values.accountId }}:certificate/{{ .Values.certArn }}
 spec:
   rules:
-  - host: auth.{{DOMAIN_NAME}}
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: auth-service
-            port:
-              number: 80
-  tls:
-  - hosts:
-    - auth.{{DOMAIN_NAME}}
-    secretName: tls-secret
+    - host: {{ .Values.domainName }}
+      http:
+        paths:
+          - path: /auth
+            pathType: Prefix
+            backend:
+              service:
+                name: auth-service
+                port:
+                  number: 80

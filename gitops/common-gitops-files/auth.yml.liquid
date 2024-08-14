@@ -1,19 +1,18 @@
----
-kind: Service
-apiVersion: v1
+auth-service.yaml
+apiVersion: batch/v1
+kind: Job
 metadata:
-  namespace: 
-  name: auth-service-svc
-  labels:
-    app: auth-service
-    service: auth-service-svc
+  name: auth-service-update
 spec:
-  selector:
-    app: auth-service
-  type: ClusterIP
-  ports:
-  - name: http-app
-    protocol: TCP
-    port: 3000
-    targetPort: 3000
-...
+  template:
+    spec:
+      containers:
+      - name: update-image
+        image: your-image-updater-tool
+        command: ["sh", "-c", "update-image.sh {{ .Values.accountId }} {{ .Values.region }} auth-service"]
+        env:
+        - name: GIT_COMMIT_HASH
+          valueFrom:
+            fieldRef:
+              fieldPath: status.commitHash
+      restartPolicy: OnFailure

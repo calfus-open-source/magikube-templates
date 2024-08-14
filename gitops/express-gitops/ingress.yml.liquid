@@ -1,22 +1,21 @@
+
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: node-express-ingress
+  name: node-service-ingress
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:{{ .Values.region }}:{{ .Values.accountId }}:certificate/{{ .Values.certArn }}
 spec:
   rules:
-  - host: express.{{DOMAIN_NAME}}
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: node-express-service
-            port:
-              number: 80
-  tls:
-  - hosts:
-    - express.{{DOMAIN_NAME}}
-    secretName: tls-secret
+    - host: {{ .Values.domainName }}
+      http:
+        paths:
+          - path: /node
+            pathType: Prefix
+            backend:
+              service:
+                name: node-service
+                port:
+                  number: 80

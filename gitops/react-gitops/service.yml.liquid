@@ -1,11 +1,13 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: reactjs-service
+  name: react-service
+  labels:
+    app: react-service
 spec:
-  selector:
-    app: reactjs-app
+  type: ClusterIP
   ports:
-  - protocol: TCP
-    port: 80
-    targetPort: 3000
+    - port: 80
+      targetPort: 80
+  selector:
+    app: react-service
