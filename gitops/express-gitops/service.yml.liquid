@@ -1,0 +1,18 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+  namespace: {{ project_name  }}-{{ environment }}-app
+  name: keycloak-service-svc
+  labels:
+    app: keycloak-service
+    service: keycloak-service-svc
+spec:
+  selector:
+    app: keycloak-service
+  type: ClusterIP
+  ports:
+  - name: http-app
+    protocol: TCP
+    port: 3001
+    targetPort: 3001

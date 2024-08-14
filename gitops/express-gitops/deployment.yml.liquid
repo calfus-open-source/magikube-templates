@@ -1,0 +1,33 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keycloak-service-deployment
+  namespace: {{ project_name }}-{{ environment }}-app
+  labels:
+    app: keycloak-service
+    version: "{% raw %}{{ version }}{% endraw %}"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: keycloak-service
+  progressDeadlineSeconds: 150
+  template:
+    metadata:
+      annotations:
+        cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
+            labels:
+        app: keycloak-service
+        version: "{% raw %}{{ version }}{% endraw %}"
+    spec:
+      containers:
+        - name: keycloak-servic
+          image: "{% raw %}{{ image }}{% endraw %}"
+          ports:
+            - containerPort: 3001
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "512Mi"
+ 

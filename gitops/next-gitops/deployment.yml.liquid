@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: next-service-deployment
+  labels:
+    app: next-service
+    version: "{% raw %}{{ version }}{% endraw %}"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: next-service
+  template:
+    metadata:
+      labels:
+        app: next-service
+        version: "{% raw %}{{ version }}{% endraw %}"
+    spec:
+      containers:
+      - name: next-service
+        image: "{% raw %}{{ image }}{% endraw %}"
+        ports:
+        - containerPort: 3000
+      resources:
+            requests:
+              cpu: "500m"
+              memory: "512Mi"

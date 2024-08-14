@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: react-service-deployment
+  labels:
+    app: react-service
+    version: "{% raw %}{{ version }}{% endraw %}"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: react-service
+  template:
+    metadata:
+      annotations:
+        cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
+      labels:
+        app: react-service
+        version: "{% raw %}{{ version }}{% endraw %}"
+    spec:
+      containers:
+      - name: react-service
+        image: image: "{% raw %}{{ image }}{% endraw %}"
+        ports:
+        - containerPort: 3000
