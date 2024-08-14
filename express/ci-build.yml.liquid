@@ -61,10 +61,11 @@ jobs:
         git config --global credential.helper 'cache --timeout=3600'
         cd ${GITOPS_REPO}
         base_name="${GITOPS_REPO%-gitops}"
-        FILE_PATH="${base_name}/express/deployemnt.yml"
+        FILE_PATH="${base_name}/express/deployment.yml"
         NEW_IMAGE="\"$(cat IMAGE_NAME)\""
         echo "##### updating image to $NEW_IMAGE #####"
         sed -i -E "s|^(.*image: ).*|\1$NEW_IMAGE|" $FILE_PATH
+        sed -i -E "s|^(.*version: ).*|\1$IMAGE_TAG|" $FILE_PATH
         git add .
         git commit -m "Bumping the version for $ECR_REPOSITORY repo"
         git push origin main
