@@ -7,7 +7,7 @@ metadata:
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS": 443}]'
   labels:
     app.kubernetes.io/name: node-service
-    app.kubernetes.io/part-of: {{ project_name  }}-{{ environment }}-app
+    app.kubernetes.io/part-of: {{ project_name }}-{{ environment }}-app
   name: node-service-ingress
   namespace: {{ project_name }}-{{ environment }}-app
 spec:
@@ -18,7 +18,7 @@ spec:
       paths:
       - backend:
           service:
-            name: node-service-ingress
+            name: node-service-svc
             port:
               number: 3001
         path: /

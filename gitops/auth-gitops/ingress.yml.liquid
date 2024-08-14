@@ -5,9 +5,9 @@ metadata:
     alb.ingress.kubernetes.io/group.name: {{ project_name }}-{{ environment }}
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS": 443}]'
   labels:
-    app.kubernetes.io/name: keycloak-service
+    app.kubernetes.io/name: auth-service
     app.kubernetes.io/part-of: {{ project_name }}-{{ environment }}-app
-  name: keycloak-service-ingress
+  name: auth-service-ingress
   namespace: {{ project_name }}-{{ environment }}-app
 spec:
   ingressClassName: alb
