@@ -60,7 +60,8 @@ jobs:
         git clone https://${REPO_TOKEN}@github.com/${USERNAME}/${GITOPS_REPO}.git
         git config --global credential.helper 'cache --timeout=3600'
         cd ${GITOPS_REPO}
-        FILE_PATH="$ECR_REGISTRY-deployemnt.yml"
+        base_name="${GITOPS_REPO%-gitops}"
+        FILE_PATH="${base_name}/next/deployemnt.yml"
         NEW_IMAGE="\"$(cat IMAGE_NAME)\""
         echo "##### updating image to $NEW_IMAGE #####"
         sed -i -E "s|^(.*image: ).*|\1$NEW_IMAGE|" $FILE_PATH
