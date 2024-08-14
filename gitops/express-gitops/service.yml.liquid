@@ -2,14 +2,14 @@
 kind: Service
 apiVersion: v1
 metadata:
-  namespace: {{ project_name  }}-{{ environment }}-app
-  name: keycloak-service-svc
+  namespace: {{ project_name }}-{{ environment }}-app
+  name: node-service-svc
   labels:
-    app: keycloak-service
-    service: keycloak-service-svc
+    app: node-service
+    service: node-service-svc
 spec:
   selector:
-    app: keycloak-service
+    app: node-service
   type: ClusterIP
   ports:
   - name: http-app
