@@ -52,9 +52,9 @@ jobs:
     - name: Apply changes to gitops repo
       id: gitops-update
       env:
-        REPO_TOKEN: ${{ env.REPO_TOKEN }}
-        GITOPS_REPO: ${{ env.GITOPS_REPO }}
-        USERNAME: ${{ env.USERNAME }}
+        REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
+        GITOPS_REPO: ${{ vars.GITOPS_REPO }}
+        USERNAME: ${{ vars.USERNAME }}
       run: |
 
         git clone https://${REPO_TOKEN}@github.com/${USERNAME}/${GITOPS_REPO}.git
