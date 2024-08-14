@@ -5,7 +5,7 @@ metadata:
   labels:
     app: next-service
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: next-service
@@ -16,6 +16,6 @@ spec:
     spec:
       containers:
       - name: next-service
-        image: {{ .Values.accountId }}.dkr.ecr.{{ .Values.region }}.amazonaws.com/next-service:{{ .Values.imageHash }}
+        image: {{ .Values.accountId }}.dkr.ecr.{{ aws_region}}.amazonaws.com/{{ project_name }}-{{ frontend_app_type }}-app:{{ latest }}
         ports:
         - containerPort: 80

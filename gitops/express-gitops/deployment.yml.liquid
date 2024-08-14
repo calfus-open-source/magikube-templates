@@ -5,7 +5,7 @@ metadata:
   labels:
     app: node-service
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: node-service
@@ -16,6 +16,6 @@ spec:
     spec:
       containers:
       - name: node-service
-        image: {{ .Values.accountId }}.dkr.ecr.{{ .Values.region }}.amazonaws.com/node-service:{{ .Values.imageHash }}
+        image: {{ .Values.accountId }}.dkr.ecr.{{ aws_region}}.amazonaws.com/{{ project_name }}-{{ backend_app_type }}-app:{{ latest }}
         ports:
         - containerPort: 80

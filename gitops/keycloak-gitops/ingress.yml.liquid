@@ -5,10 +5,10 @@ metadata:
   annotations:
     kubernetes.io/ingress.class: alb
     alb.ingress.kubernetes.io/scheme: internet-facing
-    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:{{ .Values.region }}:{{ .Values.accountId }}:certificate/{{ .Values.certArn }}
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:{{ aws_region}}:{{ .Values.accountId }}:certificate/{{ certArn }}
 spec:
   rules:
-    - host: {{ .Values.domainName }}
+    - host: {{ domain }}
       http:
         paths:
           - path: /keycloak

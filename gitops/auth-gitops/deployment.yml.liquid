@@ -5,7 +5,7 @@ metadata:
   labels:
     app: auth-service
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: auth-service
@@ -16,6 +16,6 @@ spec:
     spec:
       containers:
       - name: auth-service
-        image: {{ .Values.accountId }}.dkr.ecr.{{ .Values.region }}.amazonaws.com/auth-service:{{ .Values.imageHash }}
+        image: {{ accountId }}.dkr.ecr.{{ aws_region }}.amazonaws.com/{{ project_name }}-{{ auth-service }}-app:{{ latest }}
         ports:
         - containerPort: 80

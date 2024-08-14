@@ -9,7 +9,7 @@ spec:
       containers:
       - name: update-image
         image: your-image-updater-tool
-        command: ["sh", "-c", "update-image.sh {{ .Values.accountId }} {{ .Values.region }} next-service"]
+        command: ["sh", "-c", "update-image.sh {{ .Values.accountId }} {{ aws_region}} next-service"]
         env:
         - name: GIT_COMMIT_HASH
           valueFrom:

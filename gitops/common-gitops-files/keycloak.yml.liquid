@@ -9,7 +9,7 @@ spec:
       containers:
       - name: update-image
         image: your-image-updater-tool
-        command: ["sh", "-c", "update-image.sh {{ .Values.accountId }} {{ .Values.region }} keycloak-service"]
+        command: ["sh", "-c", "update-image.sh {{ .Values.accountId }} {{ aws_region}} keycloak-service"]
         env:
         - name: GIT_COMMIT_HASH
           valueFrom:

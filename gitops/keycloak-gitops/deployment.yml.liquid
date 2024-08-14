@@ -5,7 +5,7 @@ metadata:
   labels:
     app: keycloak-service
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: keycloak-service
@@ -16,6 +16,6 @@ spec:
     spec:
       containers:
       - name: keycloak-service
-        image: {{ .Values.accountId }}.dkr.ecr.{{ .Values.region }}.amazonaws.com/keycloak-service:{{ .Values.imageHash }}
+        image: {{ .Values.accountId }}.dkr.ecr.{{ aws_region}}.amazonaws.com/{{ project_name }}-{{ keycloak-service }}-app:{{ latest }}
         ports:
         - containerPort: 80
