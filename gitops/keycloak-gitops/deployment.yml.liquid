@@ -12,13 +12,10 @@ spec:
   selector:
     matchLabels:
       app: keycloak-service
-  progressDeadlineSeconds: 150
   template:
     metadata:
       annotations:
         cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
-        prometheus.io/scrape: "true"
-        prometheus.io/custom: "true"
       labels:
         app: keycloak-service
         version: "{% raw %}{{ version }}{% endraw %}"
