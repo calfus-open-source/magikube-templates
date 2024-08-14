@@ -3,7 +3,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: keycloak-service-deployment
-  namespace: {{ projname }}-{{ envionment }}-app
+  namespace: {{ project_name }}-{{ environment }}-app
   labels:
     app: keycloak-service
     version: "{% raw %}{{ version }}{% endraw %}"
@@ -17,42 +17,15 @@ spec:
     metadata:
       annotations:
         cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
-        prometheus.io/scrape: "true"
-        prometheus.io/custom: "true"
-      labels:
+            labels:
         app: keycloak-service
         version: "{% raw %}{{ version }}{% endraw %}"
     spec:
       containers:
-        - name: keycloak-service
-          env:
-            - name: KC_HEALTH_ENABLED
-              value: "true"
-            - name: KC_METRICS_ENABLED
-              value: "true"
-            - name: KC_HOSTNAME_ADMIN_URL
-              value: "https://{{ domain }}/"
-            - name: KC_HOSTNAME_URL
-              value: "https://{{ domain }}/"    
-            - name: KEYCLOAK_ADMIN
-              value: "user"
-            - name: KEYCLOAK_ADMIN_PASSWORD
-              value: "tGnTUHYmnP"
-            - name: PROXY_ADDRESS_FORWARDING
-              value: "true"
-            - name: KC_HTTP_ENABLED
-              value: "true"
-            - name: KC_PROXY
-              value: "edge"
-            - name: QUARKUS_TRANSACTION_MANAGER_ENABLE_RECOVERY
-              value: "true"
-            - name: KC_PROXY_HEADERS
-              value: "xforwarded"
-            - name: KC_TRANSACTION_XA_ENABLED
-              value: "true"
+        - name: keycloak-servic
           image: "{% raw %}{{ image }}{% endraw %}"
           ports:
-            - containerPort: 8080
+            - containerPort: 3001
           resources:
             requests:
               cpu: "500m"

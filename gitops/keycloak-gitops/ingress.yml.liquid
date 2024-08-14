@@ -8,7 +8,7 @@ metadata:
     app.kubernetes.io/name: keycloak-service
     app.kubernetes.io/part-of: {{ projname }}-{{ environment }}-app
   name: keycloak-service-ingress
-  namespace: {{ projname }}-{{ environment }}-app
+  namespace: {{ project_name }}-{{ environment }}-app
 spec:
   ingressClassName: alb
   rules:
