@@ -17,7 +17,7 @@ spec:
     metadata:
       annotations:
         cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
-            labels:
+      labels:
         app: node-service
         version: "{% raw %}{{ version }}{% endraw %}"
     spec:
