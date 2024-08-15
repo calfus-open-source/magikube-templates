@@ -55,14 +55,18 @@ jobs:
         REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
         GITOPS_REPO: ${{ vars.GITOPS_REPO }}
         USERNAME: ${{ vars.USERNAME }}
+        IMAGE_TAG: ${{ github.sha }}
       run: |
 
         git clone https://${REPO_TOKEN}@github.com/${USERNAME}/${GITOPS_REPO}.git
         git config --global credential.helper 'cache --timeout=3600'
+        email=$(curl -H "Authorization: Bearer ${REPO_TOKEN}" https://api.github.com/user/emails | jq -r '.[] | select(.primary) | .email')
+        git config --global user.name "adig112"
+        git config --global user.email "${email}"
         cd ${GITOPS_REPO}
         base_name="${GITOPS_REPO%-gitops}"
         FILE_PATH="${base_name}/express/deployment.yml"
-        NEW_IMAGE="\"$(cat IMAGE_NAME)\""
+        NEW_IMAGE="\"$(cat ../IMAGE_NAME)\""
         echo "##### updating image to $NEW_IMAGE #####"
         sed -i -E "s|^(.*image: ).*|\1$NEW_IMAGE|" $FILE_PATH
         sed -i -E "s|^(.*version: ).*|\1$IMAGE_TAG|" $FILE_PATH
