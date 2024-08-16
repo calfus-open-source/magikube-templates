@@ -11,6 +11,7 @@ metadata:
   name: next-service-ingress
   namespace: {{ project_name }}-{{ environment }}-app
 spec:
+  ingressClassName: alb
   rules:
     - host: {{ domain }}
       http:
