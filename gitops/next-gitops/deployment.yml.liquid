@@ -23,6 +23,13 @@ spec:
         image: "{% raw %}{{ image }}{% endraw %}"
         ports:
         - containerPort: 3000
+        env:
+          - name: NEXT_PUBLIC_KEYCLOAK_BASE_URL
+            value: "https://{{ domain }}/keycloak/realms/magikube"
+          - name: NEXT_PUBLIC_KEYCLOAK_CLIENT_ID
+            value: "magikube-client"
+          - name: NEXT_PUBLIC_UI_BASE_URL
+            value: "https://{{ domain }}/callback"
       resources:
             requests:
               cpu: "500m"
