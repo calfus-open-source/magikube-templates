@@ -2,11 +2,11 @@
  
 ## These are environment variables used for local development environment
 ## To setup keycloak in higher environments, you can use the same script with different values
-export KEYCLOAK_BASEURL=http://localhost:8080
-export KEYCLOAK_USER=admin
-export KEYCLOAK_PASSWORD=admin
+export KEYCLOAK_BASEURL=https://{{ domain }}/keycloak
+export KEYCLOAK_USER=user
+export KEYCLOAK_PASSWORD=tGnTUHYmnP
 export REALM_NAME=magikube
-export REDIRECT_URL=http://localhost
+export REDIRECT_URL=https://{{ domain }}
 export CLIENT_SECRET=huj4HGoM2vJRkqU3nmH3yyscgMv9qVLF
  
 # Function to extract token from response
