@@ -61,6 +61,8 @@ spec:
               value: "https://{{ domain }}/keycloak"
             - name: KC_HOSTNAME_URL
               value: "https://{{ domain }}/keycloak"
+            - name: KC_HTTP_RELATIVE_PATH
+              value: "/keycloak"
             - name: KC_HOSTNAME_STRICT
               value: "false"
             - name: KEYCLOAK_ADMIN
@@ -96,5 +98,4 @@ spec:
             requests:
               cpu: "500m"
               memory: "512Mi"
- 
 ...
