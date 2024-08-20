@@ -5,6 +5,7 @@ metadata:
     alb.ingress.kubernetes.io/group.name: {{ project_name }}-{{ environment }}
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS": 443}]'
     alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/group.order: '50'
   labels:
     app.kubernetes.io/name: next-service
     app.kubernetes.io/part-of: {{ project_name }}-{{ environment }}-app
