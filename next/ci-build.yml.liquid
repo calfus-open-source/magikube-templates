@@ -56,7 +56,6 @@ jobs:
         GITOPS_REPO: ${{ vars.GITOPS_REPO }}
         USERNAME: ${{ vars.USERNAME }}
         IMAGE_TAG: ${{ github.sha }}
-        IMAGE_TAG: ${{ github.sha }}
       run: |
 
         git clone https://${REPO_TOKEN}@github.com/${USERNAME}/${GITOPS_REPO}.git

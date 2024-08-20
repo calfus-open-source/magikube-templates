@@ -5,6 +5,7 @@ metadata:
   annotations:
     alb.ingress.kubernetes.io/group.name: {{ project_name }}-{{ environment }}
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS": 443}]'
+    alb.ingress.kubernetes.io/target-type: ip
   labels:
     app.kubernetes.io/name: react-service
     app.kubernetes.io/part-of: {{ project_name }}-{{ environment }}-app

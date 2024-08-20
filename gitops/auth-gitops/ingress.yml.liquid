@@ -4,6 +4,7 @@ metadata:
   annotations:
     alb.ingress.kubernetes.io/group.name: {{ project_name }}-{{ environment }}
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS": 443}]'
+    alb.ingress.kubernetes.io/target-type: ip
   labels:
     app.kubernetes.io/name: auth-service
     app.kubernetes.io/part-of: {{ project_name }}-{{ environment }}-app
@@ -19,6 +20,6 @@ spec:
           service:
             name: auth-service-svc
             port:
-              number: 8080
+              number: 3000
         path: /auth
         pathType: Prefix

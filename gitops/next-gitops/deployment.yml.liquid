@@ -12,6 +12,8 @@ spec:
       app: next-service
   template:
     metadata:
+      annotations:
+        cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
       labels:
         app: next-service
         version: "{% raw %}{{ version }}{% endraw %}"
