@@ -30,3 +30,7 @@ spec:
             value: "magikube-client"
           - name: REACT_APP_UI_BASE_URL
             value: "https://{{ domain }}/callback"
+      resources:
+        requests:
+          cpu: "500m"
+          memory: "512Mi"
