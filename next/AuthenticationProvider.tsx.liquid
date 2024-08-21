@@ -1,15 +1,16 @@
 "use client";
 import { AuthProvider } from "react-oidc-context";
 import React from "react";
+import { env } from 'next-runtime-env';
 
 const onSigninCallback = (): void => {
   window.history.replaceState({}, document.title, window.location.pathname);
 };
 
 const oidcConfig = {
-  authority: process.env.NEXT_PUBLIC_KEYCLOAK_BASE_URL,
-  client_id: process.env.NEXT_PUBLIC_KEYCLOAK_CLIENT_ID,
-  redirect_uri: process.env.NEXT_PUBLIC_UI_BASE_URL,
+  authority: env('NEXT_PUBLIC_KEYCLOAK_BASE_URL'),
+  client_id: env('NEXT_PUBLIC_KEYCLOAK_CLIENT_ID'),
+  redirect_uri: env('NEXT_PUBLIC_UI_BASE_URL'),
   response_type: "code",
   onSigninCallback
 };
