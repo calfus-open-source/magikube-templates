@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: node-service-deployment
+  namespace: "{{ project_name }}-{{ environment }}-app"
+  labels:
+    app: node-service
+    version: "{{ version }}"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: node-service
+  progressDeadlineSeconds: 150
+  template:
+    metadata:
+      annotations:
+        cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
+      labels:
+        app: node-service
+        version: "{{ version }}"
+    spec:
+      containers:
+        - name: node-service
+          image: "{{ image }}"
+          ports:
+            - containerPort: 3001
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "512Mi"
+      imagePullSecrets:
+        - name: ecr-registry-secret

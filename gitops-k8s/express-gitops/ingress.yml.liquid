@@ -1,0 +1,23 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+  labels:
+    app.kubernetes.io/name: node-service
+    app.kubernetes.io/part-of: "{{ project_name }}-{{ environment }}-app"
+  name: node-service-ingress
+  namespace: "{{ project_name }}-{{ environment }}-app"
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: "{{ domain }}"
+    http:
+      paths:
+      - path: /api
+        pathType: Prefix
+        backend:
+          service:
+            name: node-service-svc
+            port:
+              number: 3001

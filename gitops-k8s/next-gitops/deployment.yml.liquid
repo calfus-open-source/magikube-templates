@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: next-service-deployment
+  labels:
+    app: next-service
+    version: "{% raw %}{{ version }}{% endraw %}"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: next-service
+  template:
+    metadata:
+      annotations:
+        cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
+      labels:
+        app: next-service
+        version: "{% raw %}{{ version }}{% endraw %}"
+    spec:
+      containers:
+      - name: next-service
+        image: "{% raw %}{{ image }}{% endraw %}"
+        ports:
+        - containerPort: 3000
+        env:
+          - name: NEXT_PUBLIC_KEYCLOAK_BASE_URL
+            value: "https://{{ domain }}/keycloak/realms/magikube"
+          - name: NEXT_PUBLIC_KEYCLOAK_CLIENT_ID
+            value: "magikube-client"
+          - name: NEXT_PUBLIC_UI_BASE_URL
+            value: "https://{{ domain }}/callback"
+      resources:
+            requests:
+              cpu: "500m"
+              memory: "512Mi"
+      imagePullSecrets:
+      - name: ecr-registry-secret
+            

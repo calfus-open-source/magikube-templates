@@ -1,0 +1,26 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ project_name }}-{{ environment }}-app
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: next-service
+  namespace: {{ project_name }}-{{ environment }}-argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  destination:
+    namespace: {{ project_name }}-{{ environment }}-app
+    server: 'https://kubernetes.default.svc'
+  project: default
+  source:
+    path: '{{ project_name }}-{{ environment }}/next'
+    repoURL: git@github.com:{{ github_owner }}/{{ project_name }}-{{ environment }}-gitops.git
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+...
