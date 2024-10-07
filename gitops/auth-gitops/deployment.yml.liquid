@@ -31,6 +31,10 @@ spec:
             - name: KEYCLOAK_CLIENT_SECRET
               value: "ea2B9AWBk8kGXvn0yT71n2akPHzz7bPp"
           image: "{%raw%}{{ version }}{%endraw%}"
+        {% if cluster_type == 'k8s' %}
+          imagePullSecrets:
+            - name: rcred
+        {% endif %}
           ports:
             - containerPort: 3000
           resources:
