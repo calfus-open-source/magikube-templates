@@ -62,10 +62,10 @@ spec:
             - name: KC_DB_PASSWORD
               value: KcU$e@1!23
           image: "{% raw %}{{ image }}{% endraw %}"
-{% if cluster_type == 'k8s' -%}
+          {% if cluster_type == 'k8s' -%}
           imagePullSecrets:
            - name: rcred
-{%- endif %}
+          {%- endif %}
           ports:
             - containerPort: 8080
           resources:
