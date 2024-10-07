@@ -18,12 +18,12 @@ spec:
   project: default
   source:
     path: '{{ project_name }}-{{ environment }}/next'
-    {% if cluster_type == 'eks-fargate' or cluster_type == 'eks-nodegroup' -%}
+{% if cluster_type == 'eks-fargate' or cluster_type == 'eks-nodegroup' -%}
     repoURL: git@github.com:{{ github_owner }}/{{ project_name }}-{{ environment }}-gitops.git
-    {%- endif %}
-    {% if cluster_type == 'k8s' -%}
+{%- endif %}
+{% if cluster_type == 'k8s' -%}
     repoURL: https://github.com/{{ github_owner }}/{{ project_name }}-{{ environment }}-gitops.git
-    {%- endif %}
+{%- endif %}
   syncPolicy:
     automated:
       prune: true
