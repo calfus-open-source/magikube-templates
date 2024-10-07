@@ -18,7 +18,12 @@ spec:
   project: default
   source:
     path: '{{ project_name }}-{{ environment }}/keycloak-auth-service'
+    {% if cluster_type == 'eks-fargate' or cluster_type == 'eks-nodegroup' %}
     repoURL: git@github.com:{{ github_owner }}/{{ project_name }}-{{ environment }}-gitops.git
+    {% endif %}
+    {% if cluster_type == 'k8s' %}
+    repoURL: https://github.com/{{ github_owner }}/{{ project_name }}-{{ environment }}-gitops.git
+    {% endif %}
   syncPolicy:
     automated:
       prune: true
