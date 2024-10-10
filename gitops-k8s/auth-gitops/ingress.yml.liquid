@@ -1,0 +1,23 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+  labels:
+    app.kubernetes.io/name: auth-service
+    app.kubernetes.io/part-of: "{{ project_name }}-{{ environment }}-app"
+  name: auth-service-ingress
+  namespace: "{{ project_name }}-{{ environment }}-app"
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: "{{ domain }}"
+    http:
+      paths:
+      - path: /api/v1/auth
+        pathType: Prefix
+        backend:
+          service:
+            name: auth-service-svc
+            port:
+              number: 3000

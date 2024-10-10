@@ -1,0 +1,23 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+  labels:
+    app.kubernetes.io/name: next-service
+    app.kubernetes.io/part-of: "{{ project_name }}-{{ environment }}-app"
+  name: next-service-ingress
+  namespace: "{{ project_name }}-{{ environment }}-app"
+spec:
+  ingressClassName: nginx  # Specify NGINX Ingress class
+  rules:
+    - host: "{{ domain }}"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: next-service-svc
+                port:
+                  number: 3000  # Ensure this matches the service port
