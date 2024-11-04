@@ -23,10 +23,6 @@ spec:
       containers:
       - name: react-service
         image: "{% raw %}{{ image }}{% endraw %}"
-        {% if cluster_type == 'k8s' -%}
-        imagePullSecrets:
-          - name: rcred
-        {%- endif %}
         ports:
         - containerPort: 3000
         resources:
