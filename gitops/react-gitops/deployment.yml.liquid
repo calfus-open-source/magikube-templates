@@ -18,6 +18,8 @@ spec:
         app: react-service
         version: "{% raw %}{{ version }}{% endraw %}"
     spec:
+      imagePullSecrets:
+        - name: regcred
       containers:
       - name: react-service
         image: "{% raw %}{{ image }}{% endraw %}"

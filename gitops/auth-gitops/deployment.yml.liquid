@@ -33,7 +33,7 @@ spec:
           image: "{%raw%}{{ version }}{%endraw%}"
           {% if cluster_type == 'k8s' -%}
           imagePullSecrets:
-            - name: rcred
+            - name: regcred
           {%- endif %}
           ports:
             - containerPort: 3000
@@ -41,4 +41,3 @@ spec:
             requests:
               cpu: "100m"
               memory: "300Mi"
-...
