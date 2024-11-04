@@ -18,8 +18,10 @@ spec:
         app: react-service
         version: "{% raw %}{{ version }}{% endraw %}"
     spec:
+      {% if cluster_type == 'k8s' -%}
       imagePullSecrets:
         - name: regcred
+      {%- endif %}
       containers:
       - name: react-service
         image: "{% raw %}{{ image }}{% endraw %}"

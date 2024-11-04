@@ -19,8 +19,10 @@ spec:
         app: keycloak-service
         version: "{% raw %}{{ version }}{% endraw %}"
     spec:
+      {% if cluster_type == 'k8s' -%}
       imagePullSecrets:
         - name: regcred
+      {%- endif %}
       containers:
         - name: keycloak-service
           env:
@@ -29,9 +31,9 @@ spec:
             - name: KC_METRICS_ENABLED
               value: "true"
             - name: KC_HOSTNAME_ADMIN_URL
-              value: "https://magikube1.calfus.ai/keycloak"
+              value: "https://{{ domain }}/keycloak"
             - name: KC_HOSTNAME_URL
-              value: "https://magikube1.calfus.ai/keycloak"
+              value: "https://{{ domain }}/keycloak"
             - name: KC_HTTP_RELATIVE_PATH
               value: "/keycloak"
             - name: KC_HOSTNAME_STRICT
