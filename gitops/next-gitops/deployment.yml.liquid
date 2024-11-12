@@ -23,7 +23,7 @@ spec:
         image: "{% raw %}{{ image }}{% endraw %}"
         {% if cluster_type == 'k8s' -%}
         imagePullSecrets:
-          - name: rcred
+          - name: regcred
         {%- endif %}
         ports:
         - containerPort: 3000
@@ -35,6 +35,6 @@ spec:
           - name: NEXT_PUBLIC_UI_BASE_URL
             value: "https://{{ domain }}/callback"
         resources:
-              requests:
-                cpu: "500m"
-                memory: "512Mi"
+          requests:
+            cpu: "500m"
+            memory: "512Mi"

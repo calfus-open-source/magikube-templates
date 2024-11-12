@@ -21,7 +21,7 @@ metadata:
   name: keycloak-service-ingress
   namespace: {{ project_name }}-{{ environment }}-app
 spec:
-  ingressClassName: alb
+  ingressClassName: nginx
   rules:
   - host: {{ domain }}
     http:
