@@ -22,7 +22,7 @@ metadata:
   name: node-service-ingress
   namespace: {{ project_name }}-{{ environment }}-app
 spec:
-  ingressClassName: nginx
+  ingressClassName: alb
   rules:
   - host: {{ domain }}
     http:
